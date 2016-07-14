@@ -8,8 +8,8 @@
             "Rev": "9163ee543d3f1fab9b0ad8cdf6dc2a6ec2c07dbb"
         },
         {
-            "ImportPath": "github.com/coreos/etcd/clientv3",
-            "Rev": "a4a52cb15dc9ff4eb2f38c7de2d3626aab4e6df6"
+            "ImportPath": "github.com/coreos/etcd/client",
+            "Rev": "faeeb2fc7514c5caf7a9a0cc03ac9ee2ff94438b"
         },
         {
             "ImportPath": "github.com/docker/engine-api/client",
