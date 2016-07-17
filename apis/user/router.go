@@ -7,6 +7,7 @@ import (
 func Router(router *gin.Engine) {
     user := router.Group("/user")
     {
-        user.POST("/login", add)
+        user.GET("/:username", get)
+        user.POST("", add)
     }
 }

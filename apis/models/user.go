@@ -16,10 +16,6 @@ type User struct {
     IsDeleted   bool    `json:"isDeleted"`
 }
 
-type A struct {
-    Username    string
-}
-
 func NewUser(username string, password string, email string) *User {
     u := new(User)
     u.Username = username
@@ -34,12 +30,29 @@ func (u *User) key() string {
 }
 
 // To add a user.
-func (u *User) Add() {
-    data, _ := json.Marshal(u)
-    if u.isUser() == false {
-        dataSource.Set(u.key(), string(data), nil)
+func (u *User) Add() bool {
+    json, err := json.Marshal(u)
+    if err != nil {
+        return false
     }
+
+    if u.isUser() == false {
+        _, err := dataSource.Set(u.key(), string(json), nil)
+        if err != nil {
+            return false
+        }
+    }
+
+    return true
 }
+
+func (u *User) Get() (User, error) {
+    var user User
+    resopnse, err := dataSource.Get(u.key(), nil)
+    err = json.Unmarshal([]byte(resopnse.Node.Value), &user)
+    return user, err
+}
+
 /*
 // Modify the user information.
 func (u *User) modify() {

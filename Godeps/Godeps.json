@@ -18,6 +18,11 @@
         {
             "ImportPath": "github.com/docker/engine-api/types",
             "Rev": "0df83fcc24fb4a997df5537526306fb55aa5dca8"
+        },
+        {
+            "ImportPath": "golang.org/x/crypto/bcrypt",
+            "Rev": "10c26747e67d76ad4fafe6087c6f4073c3b22942"
         }
+
     ]
 }
