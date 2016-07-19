@@ -1,10 +1,11 @@
 package user
 
 import (
-    "fmt"
+    //"fmt"
     "net/http"
     "github.com/gin-gonic/gin"
     "golang.org/x/crypto/bcrypt"
+    "github.com/microcats/docking/apis/modules/recover"
     "github.com/microcats/docking/apis/models"
 )
 
@@ -16,27 +17,28 @@ type User struct {
 }
 
 func add(c *gin.Context) {
+    defer recover.HttpResponse()
     var user User
     if c.Bind(&user) != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"code": "1",})
-    } else {
-        password := []byte(user.Password)
-        hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"status": "1"})
-        }
-
-        result := models.NewUser(user.Username, string(hashedPassword), user.Email).Add()
-        if result == true {
-            c.JSON(http.StatusOK, gin.H{
-                "code": "200",
-                "message": "success",
-                "data": user,
-            })
-        } else {
-            c.JSON(http.StatusInternalServerError, gin.H{"status": "1"})
-        }
+        panic(&recover.HttpErrorHandler{c, http.StatusBadRequest})
     }
+
+    password := []byte(user.Password)
+    hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+    if err != nil {
+        panic(&recover.HttpErrorHandler{c, http.StatusInternalServerError})
+    }
+
+    result := models.NewUser(user.Username, string(hashedPassword), user.Email).Add()
+    if result != true {
+        panic(&recover.HttpErrorHandler{c, http.StatusInternalServerError})
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "code": "200",
+        "message": "success",
+        "data": user,
+    })
 }
 
 func get(c *gin.Context) {
