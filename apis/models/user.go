@@ -2,7 +2,9 @@ package models
 
 import (
     "fmt"
+    "errors"
     "encoding/json"
+
 )
 
 type User struct {
@@ -30,20 +32,21 @@ func (u *User) key() string {
 }
 
 // To add a user.
-func (u *User) Add() bool {
+func (u *User) Add() (bool, error) {
     json, err := json.Marshal(u)
     if err != nil {
-        return false
+        return false, errors.New("Invalid User Data.")
     }
 
-    if u.isUser() == false {
-        _, err := dataSource.Set(u.key(), string(json), nil)
-        if err != nil {
-            return false
-        }
+    if u.isUser() == true {
+        return false, errors.New("Username already exists.")
     }
 
-    return true
+    if _, err = dataSource.Set(u.key(), string(json), nil); err != nil {
+        return false, errors.New("Database Conection Error.")
+    }
+
+    return true, nil
 }
 
 func (u *User) Get() (User, error) {

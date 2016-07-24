@@ -1,23 +1,37 @@
 package recover
 
 import (
+    "fmt"
     "github.com/gin-gonic/gin"
 )
 
+const (
+    CodeValidateError = 40
+    CodeModelError = 50
+)
+
 type HttpErrorHandler struct {
-    Context *gin.Context
     Status  int
-    //code    int
-    //message string
+    Code    int
+    Err     error
 }
 
-func HttpResponse() {
+func HttpResponse(c *gin.Context) {
     if r := recover(); r != nil {
         if _, ok := r.(error); !ok {
             switch f := r.(type) {
             case *HttpErrorHandler:
-                f.Context.JSON(f.Status, gin.H{"status": f.Status})
+                c.JSON(f.Status, f.getMessage())
+                c.Abort()
             }
         }
+    }
+}
+
+func (h *HttpErrorHandler) getMessage() *gin.H {
+    fmt.Println(h.Err)
+    return &gin.H{
+        "code": h.Code,
+        "message": h.Err.Error(),
     }
 }

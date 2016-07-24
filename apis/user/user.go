@@ -1,7 +1,7 @@
 package user
 
 import (
-    //"fmt"
+    "fmt"
     "net/http"
     "github.com/gin-gonic/gin"
     "golang.org/x/crypto/bcrypt"
@@ -17,27 +17,26 @@ type User struct {
 }
 
 func add(c *gin.Context) {
-    defer recover.HttpResponse()
+    defer recover.HttpResponse(c)
     var user User
-    if c.Bind(&user) != nil {
-        panic(&recover.HttpErrorHandler{c, http.StatusBadRequest})
+    if err := c.Bind(&user); err != nil {
+        panic(&recover.HttpErrorHandler{http.StatusBadRequest, recover.CodeValidateError, err})
     }
 
-    password := []byte(user.Password)
-    hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
     if err != nil {
-        panic(&recover.HttpErrorHandler{c, http.StatusInternalServerError})
+        panic(&recover.HttpErrorHandler{http.StatusInternalServerError, recover.CodeValidateError, err})
     }
 
-    result := models.NewUser(user.Username, string(hashedPassword), user.Email).Add()
+    result, err := models.NewUser(user.Username, string(hashedPassword), user.Email).Add()
     if result != true {
-        panic(&recover.HttpErrorHandler{c, http.StatusInternalServerError})
+        panic(&recover.HttpErrorHandler{http.StatusInternalServerError, recover.CodeModelError, err})
     }
 
-    c.JSON(http.StatusOK, gin.H{
+    c.JSON(http.StatusCreated, gin.H{
         "code": "200",
-        "message": "success",
-        "data": user,
+        "message": "Success",
+        "data": result,
     })
 }
 
